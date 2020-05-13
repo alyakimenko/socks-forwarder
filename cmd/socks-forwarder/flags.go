@@ -18,7 +18,7 @@ func parseFlags() *config.Config {
 	c.TunPersist = flag.Bool("tunPersist", false, "Persist TUN interface after the program exits or the last open file descriptor is closed (Linux only)")
 	c.BlockOutsideDNS = flag.Bool("blockOutsideDns", false, "Prevent DNS leaks by blocking plaintext DNS queries going out through non-TUN interface (may require admin privileges) (Windows only) ")
 	c.ProxyType = flag.String("proxyType", "socks", "Proxy handler type")
-	c.LogLevel = flag.String("loglevel", "info", "Logging level. (debug, info, warn, error, none)")
+	c.LogLevel = flag.String("loglevel", "info", "Logging level. (debug, info, warn, error)")
 
 	flag.Parse()
 	return c

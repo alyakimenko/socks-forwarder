@@ -27,7 +27,7 @@ type Config struct {
 	ProxyHost   *string
 	ProxyPort   *uint16
 	UDPTimeout  *time.Duration
-	// LogLevel is logging level. (debug, info, warn, error, none)
+	// LogLevel is logging level. (debug, info, warn, error)
 	LogLevel    *string
 	DNSFallback *bool
 }
