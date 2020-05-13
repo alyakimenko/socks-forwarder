@@ -15,7 +15,7 @@ import (
 
 const (
 	version = "0.01"
-	MTU     = 1500
+	mtu     = 1500
 )
 
 var handlerCreater = make(map[string]func(), 0)
@@ -85,7 +85,7 @@ func main() {
 
 	// Copy packets from tun device to lwip stack, it's the main loop.
 	go func() {
-		_, err := io.CopyBuffer(lwipWriter, tunDev, make([]byte, MTU))
+		_, err := io.CopyBuffer(lwipWriter, tunDev, make([]byte, mtu))
 		if err != nil {
 			log.Fatalf("copying data failed: %v", err)
 		}
