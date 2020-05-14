@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/alyakimenko/socks-forwarder/internal/tun"
 	"io"
 	"os"
 	"os/signal"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/alyakimenko/socks-forwarder/internal/handler"
 	"github.com/eycorsican/go-tun2socks/core"
-	"github.com/eycorsican/go-tun2socks/tun"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,9 +42,7 @@ func main() {
 
 	// Open the tun device.
 	dnsServers := strings.Split(*args.TunDNS, ",")
-	tunDev, err := tun.OpenTunDevice(
-		*args.TunName, *args.TunAddr, *args.TunGw, *args.TunMask, dnsServers, *args.TunPersist,
-	)
+	tunDev, err := tun.OpenTunDevice(*args.TunName, *args.TunAddr, *args.TunGw, *args.TunMask, dnsServers)
 	if err != nil {
 		log.WithField(
 			"TUN Name", *args.TunName,
