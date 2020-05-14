@@ -8,6 +8,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/alyakimenko/socks-forwarder/internal/handler"
 	"github.com/eycorsican/go-tun2socks/core"
 	"github.com/eycorsican/go-tun2socks/tun"
 	log "github.com/sirupsen/logrus"
@@ -18,21 +19,15 @@ const (
 	mtu     = 1500
 )
 
-var handlerCreater = make(map[string]func(), 0)
-
-func registerHandlerCreater(name string, creater func()) {
-	handlerCreater[name] = creater
-}
-
 func main() {
-	config := parseFlags()
+	args := parseFlags()
 
-	if *config.Version {
+	if *args.Version {
 		fmt.Println(version)
 		os.Exit(0)
 	}
 
-	switch strings.ToLower(*config.LogLevel) {
+	switch strings.ToLower(*args.LogLevel) {
 	case "debug":
 		log.SetLevel(log.DebugLevel)
 	case "info":
@@ -46,35 +41,26 @@ func main() {
 	}
 
 	// Open the tun device.
-	dnsServers := strings.Split(*config.TunDNS, ",")
+	dnsServers := strings.Split(*args.TunDNS, ",")
 	tunDev, err := tun.OpenTunDevice(
-		*config.TunName, *config.TunAddr, *config.TunGw, *config.TunMask, dnsServers, *config.TunPersist,
+		*args.TunName, *args.TunAddr, *args.TunGw, *args.TunMask, dnsServers, *args.TunPersist,
 	)
 	if err != nil {
 		log.WithField(
-			"TUN Name", *config.TunName,
+			"TUN Name", *args.TunName,
 		).Fatalf("failed to open tun device: %v", err)
 	}
 
 	// Setup TCP/IP stack.
 	lwipWriter := core.NewLWIPStack().(io.Writer)
 
-	// Register TCP and UDP handlers to handle accepted connections.
-	if creater, found := handlerCreater[*config.ProxyType]; found {
-		creater()
-	} else {
-		log.WithField(
-			"Proxy type", *config.ProxyType,
-		).Fatalf("unsupported proxy type")
+	if err := handler.RegisterSocksHandler(args); err != nil {
+		log.Fatal(err)
 	}
 
-	if config.DNSFallback != nil && *config.DNSFallback {
-		// Override the UDP handler with a DNS-over-TCP (fallback) UDP handler.
-		if creater, found := handlerCreater["dnsfallback"]; found {
-			creater()
-		} else {
-			log.Fatalf("DNS fallback connection handler not found, build with `dnsfallback` tag")
-		}
+	if args.DNSFallback != nil && *args.DNSFallback {
+		log.Info("Enabled DNS fallback over TCP (overrides the UDP proxy handler).")
+		handler.RegisterDNSFallbackHandler()
 	}
 
 	// Register an output callback to write packets output from lwip stack to tun
