@@ -48,8 +48,14 @@ func main() {
 	if err != nil {
 		log.WithField(
 			"TUN Name", *args.TunName,
-		).Fatalf("failed to open tun device: %v", err)
+		).Fatalf("failed to open TUN device: %v", err)
 	}
+	log.WithFields(log.Fields{
+		"TUN Name": *args.TunName,
+		"TUN Addr": *args.TunAddr,
+		"TUN Gateway": *args.TunGw,
+		"TUN Mask": *args.TunMask,
+	}).Info("successful open TUN device")
 
 	// Setup TCP/IP stack.
 	lwipWriter := core.NewLWIPStack().(io.Writer)
