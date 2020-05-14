@@ -1,9 +1,11 @@
 package config
 
-import "time"
+import (
+	"time"
+)
 
 // Config defines command line arguments
-type Config struct {
+type CmdArgs struct {
 	Version *bool
 	// TunName is TUN interface name
 	TunName *string
@@ -23,8 +25,11 @@ type Config struct {
 	BlockOutsideDNS *bool
 	// ProxyType is proxy handler type
 	ProxyType   *string
+	// ProxyServer is proxy server address
 	ProxyServer *string
+	// ProxyHost is proxy host
 	ProxyHost   *string
+	// ProxyHost is proxy port
 	ProxyPort   *uint16
 	UDPTimeout  *time.Duration
 	// LogLevel is logging level. (debug, info, warn, error)
