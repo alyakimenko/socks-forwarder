@@ -71,7 +71,7 @@ func main() {
 	// device, output function should be set before input any packets.
 	core.RegisterOutputFn(func(data []byte) (int, error) {
 		written, err := tunDev.Write(data)
-		log.Infof("Was written %d bytes to TUN stack", written)
+		log.Infof("Was written %d bytes to TUN device", written)
 
 		return written, err
 	})
@@ -79,7 +79,7 @@ func main() {
 	// Copy packets from tun device to lwip stack, it's the main loop.
 	go func() {
 		written, err := io.CopyBuffer(lwipWriter, tunDev, make([]byte, mtu))
-		log.Infof("Was written %d bytes from lwIP device", written)
+		log.Infof("Was written %d bytes from lwIP stack", written)
 		if err != nil {
 			log.Fatalf("copying data failed: %v", err)
 		}
