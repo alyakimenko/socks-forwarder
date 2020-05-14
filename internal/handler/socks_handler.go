@@ -25,8 +25,8 @@ func RegisterSocksHandler(args *config.CmdArgs) error {
 
 	log.WithFields(log.Fields{
 		"Proxy Addr": *args.ProxyServer,
-		"Proxy Host": *args.ProxyHost,
-		"Proxy Port": *args.ProxyPort,
+		"Proxy Host": proxyHost,
+		"Proxy Port": proxyPort,
 	}).Info("Proxy details")
 
 	core.RegisterTCPConnHandler(socks.NewTCPHandler(proxyHost, proxyPort))
