@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net"
 
@@ -11,6 +12,9 @@ import (
 )
 
 func RegisterSocksHandler(args *config.CmdArgs) error {
+	if args.ProxyServer == nil {
+		return errors.New("proxy server not set")
+	}
 	// Verify proxy server address.
 	proxyAddr, err := net.ResolveTCPAddr("tcp", *args.ProxyServer)
 	if err != nil {
