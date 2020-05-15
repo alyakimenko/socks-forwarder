@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/alyakimenko/socks-forwarder/internal/tun"
 	"io"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/alyakimenko/socks-forwarder/internal/tun"
 
 	"github.com/alyakimenko/socks-forwarder/internal/handler"
 	"github.com/eycorsican/go-tun2socks/core"
@@ -40,6 +41,19 @@ func main() {
 		panic("unsupport logging level")
 	}
 
+	var logWriter io.Writer
+
+	logFile, err := os.OpenFile("forwarder.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		logWriter = io.MultiWriter(os.Stderr, logFile)
+		defer logFile.Close()
+	} else {
+		logWriter = os.Stderr
+		log.Info("Failed to log to file, using default stderr")
+	}
+
+	log.SetOutput(logWriter)
+
 	// Open the tun device.
 	dnsServers := strings.Split(*args.TunDNS, ",")
 	tunDev, err := tun.OpenTunDevice(*args.TunName, *args.TunAddr, *args.TunGw, *args.TunMask, dnsServers)
@@ -49,10 +63,10 @@ func main() {
 		).Fatalf("failed to open TUN device: %v", err)
 	}
 	log.WithFields(log.Fields{
-		"TUN Name": *args.TunName,
-		"TUN Addr": *args.TunAddr,
+		"TUN Name":    *args.TunName,
+		"TUN Addr":    *args.TunAddr,
 		"TUN Gateway": *args.TunGw,
-		"TUN Mask": *args.TunMask,
+		"TUN Mask":    *args.TunMask,
 	}).Info("successful open TUN device")
 
 	// Setup TCP/IP stack.
