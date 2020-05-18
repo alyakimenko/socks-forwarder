@@ -41,19 +41,6 @@ func main() {
 		panic("unsupport logging level")
 	}
 
-	var logWriter io.Writer
-
-	logFile, err := os.OpenFile("forwarder.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err == nil {
-		logWriter = io.MultiWriter(os.Stderr, logFile)
-		defer logFile.Close()
-	} else {
-		logWriter = os.Stderr
-		log.Info("Failed to log to file, using default stderr")
-	}
-
-	log.SetOutput(logWriter)
-
 	// Open the tun device.
 	dnsServers := strings.Split(*args.TunDNS, ",")
 	tunDev, err := tun.OpenTunDevice(*args.TunName, *args.TunAddr, *args.TunGw, *args.TunMask, dnsServers)
